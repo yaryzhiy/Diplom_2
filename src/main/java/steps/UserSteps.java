@@ -1,5 +1,6 @@
 package steps;
 
+import dto.DtoUser;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
@@ -8,24 +9,43 @@ import static utils.Utils.BASE_URL;
 
 public class UserSteps {
 
-    @Step("Получение данных о пользователе")
-    public static Object getUserData(String token) {
+    @Step("Создание пользователя")
+    public static String createUser(String email, String password, String name) {
+        DtoUser request = new DtoUser(email, password, name);
+
         Response response = given()
-                .auth().oauth2(token)
+                .header("Content-type", "application/json")
+                .log().body()
+                .body(request)
+                .when()
+                .post(BASE_URL + "/auth/register");
+
+        response.then()
+                .statusCode(200);
+
+        String token = response.then()
+                .extract()
+                .path("accessToken");
+
+        return token;
+    }
+
+    @Step("Получение данных о пользователе")
+    public static void getUserData(String token) {
+        Response response = given()
+                .header("Authorization", token)
                 .when()
                 .get(BASE_URL + "/auth/user");
 
         response.then()
                 .log().body()
                 .statusCode(200);
-
-        return response.jsonPath();
     }
 
     @Step("Удаление пользователя")
     public static void deleteUser(String token) {
         given()
-                .auth().oauth2(token)
+                .header("Authorization", token)
                 .when()
                 .delete(BASE_URL + "/auth/user")
                 .then()
