@@ -14,6 +14,11 @@ public class DtoUser {
     public DtoUser() {
     }
 
+    public DtoUser(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public DtoUser(String email, String password, String name) {
         this.email = email;
         this.password = password;
