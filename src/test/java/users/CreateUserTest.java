@@ -17,7 +17,7 @@ public class CreateUserTest {
     @Test
     @DisplayName("Успешное создание пользователя")
     public void createUserSuccessTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         DtoUser request = new DtoUser(email, password, name);
@@ -51,7 +51,7 @@ public class CreateUserTest {
     @Test
     @DisplayName("Ошибка при создании уже зарегистрированного пользователя")
     public void createRegisteredUserErrorTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         String token = createUser(email, password, name);
@@ -102,7 +102,7 @@ public class CreateUserTest {
     @DisplayName("Ошибка при создании пользователя без password")
     public void createUserWithoutPasswordErrorTest() {
         DtoUser request = new DtoUser();
-        request.setEmail("userrrrr@ya.ru");
+        request.setEmail("us@ya.ru");
         request.setName("Naruto");
 
         Response response = given()
@@ -125,7 +125,7 @@ public class CreateUserTest {
     @DisplayName("Ошибка при создании пользователя без name")
     public void createUserWithoutNameErrorTest() {
         DtoUser request = new DtoUser();
-        request.setEmail("userrrrr@ya.ru");
+        request.setEmail("us@ya.ru");
         request.setPassword("pass123");
 
         Response response = given()

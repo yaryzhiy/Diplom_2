@@ -18,7 +18,7 @@ public class LoginTest {
     @Test
     @DisplayName("Успешная авторизация существующего пользователя")
     public void loginSuccessTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         createUser(email, password, name);
@@ -52,7 +52,7 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации при некорректном email")
     public void loginIncorrectEmailErrorTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         String token = createUser(email, password, name);
@@ -79,7 +79,7 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации при некорректном password")
     public void loginIncorrectPasswordErrorTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         String token = createUser(email, password, name);
@@ -106,7 +106,7 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации без email")
     public void loginWithoutEmailErrorTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         String token = createUser(email, password, name);
@@ -134,7 +134,7 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации без password")
     public void loginWithoutPasswordErrorTest() {
-        String email = "userrrrr@ya.ru";
+        String email = "us@ya.ru";
         String password = "pass123";
         String name = "Naruto";
         String token = createUser(email, password, name);
