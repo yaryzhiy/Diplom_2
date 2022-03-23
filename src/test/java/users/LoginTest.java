@@ -36,7 +36,7 @@ public class LoginTest {
                 .assertThat()
                 .statusCode(200)
                 .and()
-                .body(matchesJsonSchemaInClasspath("createOrderResponseJsonScheme.json"))
+                .body(matchesJsonSchemaInClasspath("createUserResponseJsonScheme.json"))
                 .body("success", equalTo(true))
                 .body("user.email", equalTo(email))
                 .body("user.name", equalTo(name))
