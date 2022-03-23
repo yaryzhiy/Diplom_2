@@ -15,12 +15,13 @@ import static utils.Utils.BASE_URL;
 
 public class LoginTest {
 
+    String email = "user10@ya.ru";
+    String password = "pass123";
+    String name = "Naruto";
+
     @Test
     @DisplayName("Успешная авторизация существующего пользователя")
     public void loginSuccessTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         createUser(email, password, name);
         DtoUser request = new DtoUser(email, password);
 
@@ -52,9 +53,6 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации при некорректном email")
     public void loginIncorrectEmailErrorTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         String token = createUser(email, password, name);
         DtoUser request = new DtoUser("incorrect_email", password);
 
@@ -79,9 +77,6 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации при некорректном password")
     public void loginIncorrectPasswordErrorTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         String token = createUser(email, password, name);
         DtoUser request = new DtoUser(email, "incorrect_password");
 
@@ -106,9 +101,6 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации без email")
     public void loginWithoutEmailErrorTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         String token = createUser(email, password, name);
         DtoUser request = new DtoUser();
         request.setPassword(password);
@@ -134,9 +126,6 @@ public class LoginTest {
     @Test
     @DisplayName("Ошибка авторизации без password")
     public void loginWithoutPasswordErrorTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         String token = createUser(email, password, name);
         DtoUser request = new DtoUser();
         request.setEmail(email);

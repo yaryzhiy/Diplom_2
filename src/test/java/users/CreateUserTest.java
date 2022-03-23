@@ -14,12 +14,13 @@ import static utils.Utils.BASE_URL;
 
 public class CreateUserTest {
 
+    String email = "user10@ya.ru";
+    String password = "pass123";
+    String name = "Naruto";
+
     @Test
     @DisplayName("Успешное создание пользователя")
     public void createUserSuccessTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         DtoUser request = new DtoUser(email, password, name);
 
         Response response = given()
@@ -51,9 +52,6 @@ public class CreateUserTest {
     @Test
     @DisplayName("Ошибка при создании уже зарегистрированного пользователя")
     public void createRegisteredUserErrorTest() {
-        String email = "us@ya.ru";
-        String password = "pass123";
-        String name = "Naruto";
         String token = createUser(email, password, name);
         DtoUser request = new DtoUser(email, password, name);
 
@@ -102,7 +100,7 @@ public class CreateUserTest {
     @DisplayName("Ошибка при создании пользователя без password")
     public void createUserWithoutPasswordErrorTest() {
         DtoUser request = new DtoUser();
-        request.setEmail("us@ya.ru");
+        request.setEmail("user10@ya.ru");
         request.setName("Naruto");
 
         Response response = given()
@@ -125,7 +123,7 @@ public class CreateUserTest {
     @DisplayName("Ошибка при создании пользователя без name")
     public void createUserWithoutNameErrorTest() {
         DtoUser request = new DtoUser();
-        request.setEmail("us@ya.ru");
+        request.setEmail("user10@ya.ru");
         request.setPassword("pass123");
 
         Response response = given()

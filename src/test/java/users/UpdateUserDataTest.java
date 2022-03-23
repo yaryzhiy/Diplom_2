@@ -3,10 +3,7 @@ package users;
 import dto.DtoUser;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -17,13 +14,14 @@ import static utils.Utils.BASE_URL;
 
 public class UpdateUserDataTest {
 
+    String email = "user10update@ya.ru";
+    String password = "pass123Update";
+    String name = "NarutoUpdate";
+
     @Test
     @DisplayName("Успешное обновление информации о пользователе")
     public void updateUserDataSuccessTest() {
-        String email = "usUpdate@ya.ru";
-        String password = "pass123Update";
-        String name = "NarutoUpdate";
-        String token = createUser("us@ya.ru", "pass123", "Naruto");
+        String token = createUser("user10@ya.ru", "pass123", "Naruto");
         DtoUser request = new DtoUser(email, password, name);
 
         Response response = given()
@@ -40,14 +38,36 @@ public class UpdateUserDataTest {
                 .and()
                 .body(matchesJsonSchemaInClasspath("userDataJsonScheme.json"))
                 .body("success", equalTo(true))
-                .body("user.email", equalTo(email.toLowerCase()))
+                .body("user.email", equalTo(email))
                 .body("user.name", equalTo(name));
 
         DtoUser user = getUserData(token);
-        assertEquals(user.email, equalTo(email.toLowerCase()));
-        assertEquals(user.name, equalTo(name));
+        assertEquals(user.email, email);
+        assertEquals(user.name, name);
 
         login(email, password);
         deleteUser(token);
     }
+
+    @Test
+    @DisplayName("Ошибка обновления информации неавторизованного пользователя")
+    public void updateUnauthorizedUserDataErrorTest() {
+        DtoUser request = new DtoUser(email, password, name);
+
+        Response response = given()
+                .header("Content-type", "application/json")
+                .and()
+                .body(request)
+                .when()
+                .patch(BASE_URL + "/auth/user");
+
+        response.then()
+                .assertThat()
+                .statusCode(401)
+                .and()
+                .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
+                .body("success", equalTo(false))
+                .body("message", equalTo("You should be authorised"));
+    }
+
 }

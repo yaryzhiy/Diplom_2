@@ -4,8 +4,6 @@ import dto.DtoUser;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
-import java.util.HashMap;
-
 import static io.restassured.RestAssured.given;
 import static utils.Utils.BASE_URL;
 
