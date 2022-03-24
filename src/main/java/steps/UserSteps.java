@@ -15,7 +15,6 @@ public class UserSteps {
 
         Response response = given()
                 .header("Content-type", "application/json")
-                .log().body()
                 .body(request)
                 .when()
                 .post(BASE_URL + "/auth/register");
@@ -48,7 +47,6 @@ public class UserSteps {
                 .get(BASE_URL + "/auth/user");
 
         response.then()
-                .log().body()
                 .statusCode(200);
 
         DtoUser user = new DtoUser();
