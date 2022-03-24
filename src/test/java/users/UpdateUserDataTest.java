@@ -14,14 +14,14 @@ import static utils.Utils.BASE_URL;
 
 public class UpdateUserDataTest {
 
-    String email = "user10update@ya.ru";
+    String email = "user33update@ya.ru";
     String password = "pass123Update";
     String name = "NarutoUpdate";
 
     @Test
     @DisplayName("Успешное обновление информации о пользователе")
     public void updateUserDataSuccessTest() {
-        String token = createUser("user10@ya.ru", "pass123", "Naruto");
+        String token = createUser("user33@ya.ru", "pass123", "Naruto");
         DtoUser request = new DtoUser(email, password, name);
 
         Response response = given()

@@ -15,7 +15,7 @@ import static utils.Utils.BASE_URL;
 
 public class LoginTest {
 
-    String email = "user10@ya.ru";
+    String email = "user33@ya.ru";
     String password = "pass123";
     String name = "Naruto";
 

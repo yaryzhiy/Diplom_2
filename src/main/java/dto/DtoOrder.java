@@ -11,6 +11,9 @@ public class DtoOrder {
 
     public ArrayList<String> ingredients;
 
+    public DtoOrder() {
+    }
+
     public DtoOrder(ArrayList<String> ingredients) {
         this.ingredients = ingredients;
     }
