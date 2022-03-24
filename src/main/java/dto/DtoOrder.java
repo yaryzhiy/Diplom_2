@@ -12,14 +12,14 @@ public class DtoOrder {
     public ArrayList<String> ingredients;
 
     public DtoOrder() {
+        this.ingredients = new ArrayList<>();
     }
 
     public DtoOrder(ArrayList<String> ingredients) {
         this.ingredients = ingredients;
     }
 
-    public ArrayList<String> setIngredient(String ingredient) {
+    public void setIngredient(String ingredient) {
         ingredients.add(ingredient);
-        return ingredients;
     }
 }
