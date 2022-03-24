@@ -23,11 +23,7 @@ public class UserSteps {
         response.then()
                 .statusCode(200);
 
-        String token = response.then()
-                .extract()
-                .path("accessToken");
-
-        return token;
+        return response.then().extract().path("accessToken");
     }
 
     @Step("Авторизация пользователя")

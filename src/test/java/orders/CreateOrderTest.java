@@ -1,7 +1,7 @@
 package orders;
 
 import dto.DtoIngredientsResponse;
-import dto.DtoOrder;
+import dto.DtoOrderRequest;
 import dto.DtoOrderResponse;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
@@ -23,16 +23,16 @@ import static utils.Utils.*;
 
 public class CreateOrderTest {
 
-    public ArrayList<String> ingredients = new ArrayList<>(Arrays.asList("61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa6f"));
     String email = "user36@ya.ru";
     String password = "pass123";
     String name = "Naruto";
+    public ArrayList<String> ingredients = new ArrayList<>(Arrays.asList("61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa6f"));
 
     @Test
     @DisplayName("Успешное создание заказа с ингредиентами авторизованного пользователя")
     public void createOrderWithIngredientsSuccessTest() {
         String token = createUser(email, password, name);
-        DtoOrder request = new DtoOrder(ingredients);
+        DtoOrderRequest request = new DtoOrderRequest(ingredients);
 
         DtoIngredientsResponse ingredientsData = getIngredientsData();
 
@@ -75,7 +75,7 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Успешное создание заказа без авторизации")
     public void createOrderWithoutAuthorizationSuccessTest() {
-        DtoOrder request = new DtoOrder(ingredients);
+        DtoOrderRequest request = new DtoOrderRequest(ingredients);
 
         Response response = given()
                 .header("Content-type", "application/json")
@@ -97,7 +97,7 @@ public class CreateOrderTest {
     @DisplayName("Ошибка создания заказа без ингредиентов")
     public void createOrderWithoutIngredientsErrorTest() {
         String token = createUser(email, password, name);
-        DtoOrder request = new DtoOrder();
+        DtoOrderRequest request = new DtoOrderRequest();
 
         Response response = given()
                 .header("Content-type", "application/json")
@@ -121,7 +121,7 @@ public class CreateOrderTest {
     @DisplayName("Ошибка создания заказа неверным хешем ингредиентов")
     public void createOrderWithIncorrectIngredientHashErrorTest() {
         String token = createUser(email, password, name);
-        DtoOrder request = new DtoOrder();
+        DtoOrderRequest request = new DtoOrderRequest();
         request.setIngredient("incorrect1hash");
 
         given()

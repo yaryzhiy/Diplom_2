@@ -7,15 +7,15 @@ import java.util.ArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DtoOrder {
+public class DtoOrderRequest {
 
     public ArrayList<String> ingredients;
 
-    public DtoOrder() {
+    public DtoOrderRequest() {
         this.ingredients = new ArrayList<>();
     }
 
-    public DtoOrder(ArrayList<String> ingredients) {
+    public DtoOrderRequest(ArrayList<String> ingredients) {
         this.ingredients = ingredients;
     }
 
