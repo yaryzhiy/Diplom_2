@@ -1,55 +1,45 @@
 package orders;
 
-import dto.DtoIngredientsResponse;
 import dto.DtoOrderRequest;
-import dto.DtoOrderResponse;
+import dto.DtoUser;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static steps.OrderSteps.getIngredientsData;
-import static steps.OrderSteps.getUserOrders;
+import static steps.OrderSteps.*;
 import static steps.UserSteps.createUser;
 import static steps.UserSteps.deleteUser;
-import static utils.Utils.*;
 
 public class CreateOrderTest {
 
-    String email = "user36@ya.ru";
+    String email = "user40@ya.ru";
     String password = "pass123";
     String name = "Naruto";
     public ArrayList<String> ingredients = new ArrayList<>(Arrays.asList("61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa6f"));
+    String token;
 
     @Test
     @DisplayName("Успешное создание заказа с ингредиентами авторизованного пользователя")
     public void createOrderWithIngredientsSuccessTest() {
-        String token = createUser(email, password, name);
-        DtoOrderRequest request = new DtoOrderRequest(ingredients);
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
 
-        DtoIngredientsResponse ingredientsData = getIngredientsData();
+        Response ingredientsData = getIngredients();
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .header("Authorization", token)
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/orders");
-
+        Response response = createOrderByAuthUser(new DtoOrderRequest(ingredients), token);
         response.then()
                 .assertThat()
                 .statusCode(200)
                 .body(matchesJsonSchemaInClasspath("createOrderResponseJsonScheme.json"))
                 .body("success", equalTo(true))
                 .body("name", equalTo("Флюоресцентный бессмертный бургер"))
+                .body("order.ingredients[0]", equalTo(ingredientsData.then().extract().path("data[0]")))
                 .body("order._id", notNullValue())
                 .body("order.owner.name", equalTo(name))
                 .body("order.owner.email", equalTo(email))
@@ -62,28 +52,15 @@ public class CreateOrderTest {
                 .body("order.number", notNullValue())
                 .body("order.price", equalTo(2325));
 
-        //Проверка блока ингредиентов
-        DtoOrderResponse createOrderIngredients = response.getBody().as(DtoOrderResponse.class);
-        ingredientsData.data.toString().equals(createOrderIngredients.order.ingredients.toString());
-
-        int orderNumber = getUserOrders(token);
-        assertEquals(createOrderIngredients.order.number, orderNumber);
-
-        deleteUser(token);
+        getUserOrders(token).then()
+                .statusCode(200)
+                .body("orders[0].number", equalTo(response.then().extract().path("order.number")));
     }
 
     @Test
     @DisplayName("Успешное создание заказа без авторизации")
     public void createOrderWithoutAuthorizationSuccessTest() {
-        DtoOrderRequest request = new DtoOrderRequest(ingredients);
-
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/orders");
-
+        Response response = createOrderByUnauthUser(new DtoOrderRequest(ingredients));
         response.then()
                 .assertThat()
                 .statusCode(200)
@@ -96,44 +73,34 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Ошибка создания заказа без ингредиентов")
     public void createOrderWithoutIngredientsErrorTest() {
-        String token = createUser(email, password, name);
-        DtoOrderRequest request = new DtoOrderRequest();
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .header("Authorization", token)
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/orders");
-
+        Response response = createOrderByAuthUser(new DtoOrderRequest(), token);
         response.then()
                 .assertThat()
                 .statusCode(400)
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("Ingredient ids must be provided"));
-
-        deleteUser(token);
     }
 
     @Test
-    @DisplayName("Ошибка создания заказа неверным хешем ингредиентов")
+    @DisplayName("Ошибка создания заказа с неверным хешем ингредиентов")
     public void createOrderWithIncorrectIngredientHashErrorTest() {
-        String token = createUser(email, password, name);
-        DtoOrderRequest request = new DtoOrderRequest();
-        request.setIngredient("incorrect1hash");
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
+        DtoOrderRequest dtoOrderRequest = new DtoOrderRequest();
+        dtoOrderRequest.setIngredient("incorrect1hash");
 
-        given()
-                .header("Content-type", "application/json")
-                .header("Authorization", token)
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/orders")
+        createOrderByAuthUser(dtoOrderRequest, token)
                 .then()
                 .statusCode(500);
+    }
 
-        deleteUser(token);
+    @After
+    public void tearDown() {
+        if (token != null) {
+            deleteUser(token);
+            token = null;
+        }
     }
 }

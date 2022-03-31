@@ -10,49 +10,39 @@ import static utils.Utils.BASE_URL;
 public class UserSteps {
 
     @Step("Создание пользователя")
-    public static String createUser(String email, String password, String name) {
-        DtoUser request = new DtoUser(email, password, name);
-
-        Response response = given()
+    public static Response createUser(DtoUser dtoUser) {
+        return given()
                 .header("Content-type", "application/json")
-                .body(request)
+                .body(dtoUser)
                 .when()
                 .post(BASE_URL + "/auth/register");
-
-        response.then()
-                .statusCode(200);
-
-        return response.then().extract().path("accessToken");
     }
 
     @Step("Авторизация пользователя")
-    public static void login(String email, String password) {
-        DtoUser dtoUser = new DtoUser(email, password);
-
-        Response response = given()
+    public static Response login(DtoUser dtoUser) {
+        return given()
                 .header("Content-type", "application/json")
                 .body(dtoUser)
                 .when()
                 .post(BASE_URL + "/auth/login");
-
-        response.then()
-                .statusCode(200);
     }
 
     @Step("Получение данных о пользователе")
-    public static DtoUser getUserData(String token) {
-        Response response = given()
+    public static Response getUserData(String token) {
+        return given()
                 .header("Authorization", token)
                 .when()
                 .get(BASE_URL + "/auth/user");
+    }
 
-        response.then()
-                .statusCode(200);
-
-        DtoUser user = new DtoUser();
-        user.setEmail(response.then().extract().path("user.email"));
-        user.setName(response.then().extract().path("user.name"));
-        return user;
+    @Step("Обновление информации о пользователе")
+    public static Response updateUserData(DtoUser dtoUserUpdate, String token) {
+        return given()
+                .header("Content-type", "application/json")
+                .header("Authorization", token)
+                .body(dtoUserUpdate)
+                .when()
+                .patch(BASE_URL + "/auth/user");
     }
 
     @Step("Удаление пользователя")

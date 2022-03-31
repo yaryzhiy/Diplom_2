@@ -3,37 +3,28 @@ package users;
 import dto.DtoUser;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static steps.UserSteps.*;
-import static utils.Utils.BASE_URL;
 
 public class CreateUserTest {
 
-    String email = "user36@ya.ru";
+    String email = "user40@ya.ru";
     String password = "pass123";
     String name = "Naruto";
+    String token;
 
     @Test
     @DisplayName("Успешное создание пользователя")
     public void createUserSuccessTest() {
-        DtoUser request = new DtoUser(email, password, name);
-
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/register");
-
+        Response response = createUser(new DtoUser(email, password, name));
         response.then()
                 .assertThat()
                 .statusCode(200)
-                .and()
                 .body(matchesJsonSchemaInClasspath("createUserResponseJsonScheme.json"))
                 .body("success", equalTo(true))
                 .body("user.email", equalTo(email))
@@ -41,56 +32,39 @@ public class CreateUserTest {
                 .body("accessToken", notNullValue())
                 .body("refreshToken", notNullValue());
 
-        String token = response.then()
+        token = response.then()
                 .extract()
                 .path("accessToken");
-
-        getUserData(token);
-        deleteUser(token);
+        getUserData(token).then()
+                .statusCode(200);
     }
 
     @Test
     @DisplayName("Ошибка при создании уже зарегистрированного пользователя")
     public void createRegisteredUserErrorTest() {
-        String token = createUser(email, password, name);
-        DtoUser request = new DtoUser(email, password, name);
+        DtoUser dtoUser = new DtoUser(email, password, name);
+        token = createUser(dtoUser).then().extract().path("accessToken");
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/register");
-
+        Response response = createUser(dtoUser);
         response.then()
                 .assertThat()
                 .statusCode(403)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("User already exists"));
-
-        deleteUser(token);
     }
 
     @Test
     @DisplayName("Ошибка при создании пользователя без email")
     public void createUserWithoutEmailErrorTest() {
-        DtoUser request = new DtoUser();
-        request.setPassword("pass123");
-        request.setName("Naruto");
+        DtoUser dtoUser = new DtoUser();
+        dtoUser.setPassword(password);
+        dtoUser.setName(name);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/register");
-
+        Response response = createUser(dtoUser);
         response.then()
                 .assertThat()
                 .statusCode(403)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
@@ -99,21 +73,14 @@ public class CreateUserTest {
     @Test
     @DisplayName("Ошибка при создании пользователя без password")
     public void createUserWithoutPasswordErrorTest() {
-        DtoUser request = new DtoUser();
-        request.setEmail("user10@ya.ru");
-        request.setName("Naruto");
+        DtoUser dtoUser = new DtoUser();
+        dtoUser.setEmail(email);
+        dtoUser.setName(name);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/register");
-
+        Response response = createUser(dtoUser);
         response.then()
                 .assertThat()
                 .statusCode(403)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
@@ -122,23 +89,24 @@ public class CreateUserTest {
     @Test
     @DisplayName("Ошибка при создании пользователя без name")
     public void createUserWithoutNameErrorTest() {
-        DtoUser request = new DtoUser();
-        request.setEmail("user10@ya.ru");
-        request.setPassword("pass123");
+        DtoUser dtoUser = new DtoUser();
+        dtoUser.setEmail(email);
+        dtoUser.setPassword(password);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/register");
-
+        Response response = createUser(dtoUser);
         response.then()
                 .assertThat()
                 .statusCode(403)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("Email, password and name are required fields"));
+    }
+
+    @After
+    public void tearDown() {
+        if (token != null) {
+            deleteUser(token);
+            token = null;
+        }
     }
 }

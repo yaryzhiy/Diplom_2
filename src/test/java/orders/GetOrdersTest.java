@@ -1,7 +1,10 @@
 package orders;
 
+import dto.DtoOrderRequest;
+import dto.DtoUser;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,30 +14,27 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static steps.OrderSteps.createOrder;
+import static steps.OrderSteps.createOrderByAuthUser;
+import static steps.OrderSteps.getUserOrders;
 import static steps.UserSteps.createUser;
 import static steps.UserSteps.deleteUser;
 import static utils.Utils.BASE_URL;
 
 public class GetOrdersTest {
 
-    String email = "user36@ya.ru";
+    String email = "user40@ya.ru";
     String password = "pass123";
     String name = "Naruto";
     public ArrayList<String> ingredients = new ArrayList<>(Arrays.asList("61c0c5a71d1f82001bdaaa6d", "61c0c5a71d1f82001bdaaa6f"));
+    String token;
 
     @Test
     @DisplayName("Успешное получение заказов авторизованного пользователя")
     public void getOrdersSuccessTest() {
-        String token = createUser(email, password, name);
-        int orderNumber = createOrder(token, ingredients);
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
+        int orderNumber = createOrderByAuthUser(new DtoOrderRequest(ingredients), token).then().extract().path("order.number");
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .header("Authorization", token)
-                .when()
-                .get(BASE_URL + "/orders");
-
+        Response response = getUserOrders(token);
         response.then()
                 .assertThat()
                 .statusCode(200)
@@ -49,8 +49,6 @@ public class GetOrdersTest {
                 .body("orders[0].number", equalTo(orderNumber))
                 .body("total", notNullValue())
                 .body("totalToday", notNullValue());
-
-        deleteUser(token);
     }
 
     @Test
@@ -67,5 +65,13 @@ public class GetOrdersTest {
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("You should be authorised"));
+    }
+
+    @After
+    public void tearDown() {
+        if (token != null) {
+            deleteUser(token);
+            token = null;
+        }
     }
 }

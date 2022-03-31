@@ -3,39 +3,30 @@ package users;
 import dto.DtoUser;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static steps.UserSteps.createUser;
-import static steps.UserSteps.deleteUser;
-import static utils.Utils.BASE_URL;
+import static steps.UserSteps.*;
 
 public class LoginTest {
 
-    String email = "user36@ya.ru";
+    String email = "user40@ya.ru";
     String password = "pass123";
     String name = "Naruto";
+    String token;
 
     @Test
     @DisplayName("Успешная авторизация существующего пользователя")
     public void loginSuccessTest() {
-        createUser(email, password, name);
-        DtoUser request = new DtoUser(email, password);
+        createUser(new DtoUser(email, password, name));
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/login");
-
+        Response response = login(new DtoUser(email, password));
         response.then()
                 .assertThat()
                 .statusCode(200)
-                .and()
                 .body(matchesJsonSchemaInClasspath("createUserResponseJsonScheme.json"))
                 .body("success", equalTo(true))
                 .body("user.email", equalTo(email))
@@ -43,108 +34,76 @@ public class LoginTest {
                 .body("accessToken", notNullValue())
                 .body("refreshToken", notNullValue());
 
-        String token = response.then()
+        token = response.then()
                 .extract()
                 .path("accessToken");
-
-        deleteUser(token);
     }
 
     @Test
     @DisplayName("Ошибка авторизации при некорректном email")
     public void loginIncorrectEmailErrorTest() {
-        String token = createUser(email, password, name);
-        DtoUser request = new DtoUser("incorrect_email", password);
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/login");
-
+        Response response = login(new DtoUser("incorrect_email", password));
         response.then()
                 .assertThat()
                 .statusCode(401)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("email or password are incorrect"));
-
-        deleteUser(token);
     }
 
     @Test
     @DisplayName("Ошибка авторизации при некорректном password")
     public void loginIncorrectPasswordErrorTest() {
-        String token = createUser(email, password, name);
-        DtoUser request = new DtoUser(email, "incorrect_password");
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/login");
-
+        Response response = login(new DtoUser(email, "incorrect_password"));
         response.then()
                 .assertThat()
                 .statusCode(401)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("email or password are incorrect"));
-
-        deleteUser(token);
     }
 
     @Test
     @DisplayName("Ошибка авторизации без email")
     public void loginWithoutEmailErrorTest() {
-        String token = createUser(email, password, name);
-        DtoUser request = new DtoUser();
-        request.setPassword(password);
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
+        DtoUser dtoUserLogin = new DtoUser();
+        dtoUserLogin.setPassword(password);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/login");
-
+        Response response = login(dtoUserLogin);
         response.then()
                 .assertThat()
                 .statusCode(401)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("email or password are incorrect"));
-
-        deleteUser(token);
     }
 
     @Test
     @DisplayName("Ошибка авторизации без password")
     public void loginWithoutPasswordErrorTest() {
-        String token = createUser(email, password, name);
-        DtoUser request = new DtoUser();
-        request.setEmail(email);
+        token = createUser(new DtoUser(email, password, name)).then().extract().path("accessToken");
+        DtoUser dtoUserLogin = new DtoUser();
+        dtoUserLogin.setEmail(email);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(request)
-                .when()
-                .post(BASE_URL + "/auth/login");
-
+        Response response = login(dtoUserLogin);
         response.then()
                 .assertThat()
                 .statusCode(401)
-                .and()
                 .body(matchesJsonSchemaInClasspath("errorJsonScheme.json"))
                 .body("success", equalTo(false))
                 .body("message", equalTo("email or password are incorrect"));
+    }
 
-        deleteUser(token);
+    @After
+    public void tearDown() {
+        if (token != null) {
+            deleteUser(token);
+            token = null;
+        }
     }
 }

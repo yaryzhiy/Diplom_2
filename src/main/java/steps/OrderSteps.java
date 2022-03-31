@@ -1,11 +1,8 @@
 package steps;
 
-import dto.DtoIngredientsResponse;
 import dto.DtoOrderRequest;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
-
-import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
 import static utils.Utils.BASE_URL;
@@ -13,45 +10,36 @@ import static utils.Utils.BASE_URL;
 public class OrderSteps {
 
     @Step("Получение данных об ингредиентах")
-    public static DtoIngredientsResponse getIngredientsData() {
-        Response response = given()
+    public static Response getIngredients() {
+        return given()
                 .when()
                 .get(BASE_URL + "/ingredients");
-
-        response.then()
-                .statusCode(200);
-
-        return response.getBody().as(DtoIngredientsResponse.class);
     }
 
     @Step("Получение заказов пользователя")
-    public static int getUserOrders(String token) {
-        Response response = given()
+    public static Response getUserOrders(String token) {
+        return given()
                 .header("Authorization", token)
                 .when()
                 .get(BASE_URL + "/orders");
-
-        response.then()
-                .statusCode(200);
-
-        return response.then().extract().path("orders[0].number");
     }
 
-    @Step("Создание заказа")
-    public static int createOrder(String token, ArrayList<String> ingredients) {
-        DtoOrderRequest request = new DtoOrderRequest(ingredients);
-
-        Response response = given()
+    @Step("Создание заказа авторизованного пользовател")
+    public static Response createOrderByAuthUser(DtoOrderRequest dtoOrderRequest, String token) {
+        return given()
                 .header("Content-type", "application/json")
                 .header("Authorization", token)
-                .and()
-                .body(request)
+                .body(dtoOrderRequest)
                 .when()
                 .post(BASE_URL + "/orders");
+    }
 
-        response.then()
-                .statusCode(200);
-
-        return response.then().extract().path("order.number");
+    @Step("Создание заказа неавторизованного пользовател")
+    public static Response createOrderByUnauthUser(DtoOrderRequest dtoOrderRequest) {
+        return given()
+                .header("Content-type", "application/json")
+                .body(dtoOrderRequest)
+                .when()
+                .post(BASE_URL + "/orders");
     }
 }
