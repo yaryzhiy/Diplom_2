@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "required": [
+    "success",
+    "name",
+    "order"
+  ],
+  "properties": {
+    "success": {
+      "$id": "#/properties/success",
+      "type": "boolean"
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string"
+    },
+    "order": {
+      "$id": "#/properties/order",
+      "type": "object",
+      "required": [
+        "ingredients",
+        "_id",
+        "owner",
+        "status",
+        "name",
+        "createdAt",
+        "updatedAt",
+        "number",
+        "price"
+      ],
+      "properties": {
+        "ingredients": {
+          "$id": "#/properties/order/properties/ingredients",
+          "type": "array",
+          "additionalItems": true,
+          "items": {
+            "$id": "#/properties/order/properties/ingredients/items",
+            "anyOf": [
+              {
+                "$id": "#/properties/order/properties/ingredients/items/anyOf/0",
+                "type": "object",
+                "required": [
+                  "_id",
+                  "name",
+                  "type",
+                  "proteins",
+                  "fat",
+                  "carbohydrates",
+                  "calories",
+                  "price",
+                  "image",
+                  "image_mobile",
+                  "image_large",
+                  "__v"
+                ],
+                "properties": {
+                  "_id": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/_id",
+                    "type": "string"
+                  },
+                  "name": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/name",
+                    "type": "string"
+                  },
+                  "type": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/type",
+                    "type": "string"
+                  },
+                  "proteins": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/proteins",
+                    "type": "integer"
+                  },
+                  "fat": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/fat",
+                    "type": "integer"
+                  },
+                  "carbohydrates": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/carbohydrates",
+                    "type": "integer"
+                  },
+                  "calories": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/calories",
+                    "type": "integer"
+                  },
+                  "price": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/price",
+                    "type": "integer"
+                  },
+                  "image": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/image",
+                    "type": "string"
+                  },
+                  "image_mobile": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/image_mobile",
+                    "type": "string"
+                  },
+                  "image_large": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/image_large",
+                    "type": "string"
+                  },
+                  "__v": {
+                    "$id": "#/properties/order/properties/ingredients/items/anyOf/0/properties/__v",
+                    "type": "integer"
+                  }
+                },
+                "additionalProperties": true
+              }
+            ]
+          }
+        },
+        "_id": {
+          "$id": "#/properties/order/properties/_id",
+          "type": "string"
+        },
+        "owner": {
+          "$id": "#/properties/order/properties/owner",
+          "type": "object",
+          "required": [
+            "name",
+            "email",
+            "createdAt",
+            "updatedAt"
+          ],
+          "properties": {
+            "name": {
+              "$id": "#/properties/order/properties/owner/properties/name",
+              "type": "string"
+            },
+            "email": {
+              "$id": "#/properties/order/properties/owner/properties/email",
+              "type": "string"
+            },
+            "createdAt": {
+              "$id": "#/properties/order/properties/owner/properties/createdAt",
+              "type": "string"
+            },
+            "updatedAt": {
+              "$id": "#/properties/order/properties/owner/properties/updatedAt",
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "status": {
+          "$id": "#/properties/order/properties/status",
+          "type": "string"
+        },
+        "name": {
+          "$id": "#/properties/order/properties/name",
+          "type": "string"
+        },
+        "createdAt": {
+          "$id": "#/properties/order/properties/createdAt",
+          "type": "string"
+        },
+        "updatedAt": {
+          "$id": "#/properties/order/properties/updatedAt",
+          "type": "string"
+        },
+        "number": {
+          "$id": "#/properties/order/properties/number",
+          "type": "integer"
+        },
+        "price": {
+          "$id": "#/properties/order/properties/price",
+          "type": "integer"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
